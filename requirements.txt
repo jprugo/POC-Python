@@ -1,0 +1,4 @@
+git+https://github.com/acesseonline/pyreportjasper@master#egg=pyreportjasper
+FastAPI
+boto3
+mangum

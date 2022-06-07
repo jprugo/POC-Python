@@ -1,0 +1,11 @@
+[
+    {
+        "id": 1,
+        "name": "my-dummy-report",
+        "template_path": "test/templates/CancelAck.jrxml",
+        "sources": [
+            "test/data/CancelAck.xml"
+        ],
+        "xml_path": "/CancelResponse/CancelResult/ID"
+    }
+]

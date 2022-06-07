@@ -1,0 +1,66 @@
+service: laboratorio-java-build-own-image
+
+frameworkVersion: "3.7.1"
+
+provider:
+  name: aws
+  lambdaHashingVersion: "20201221"
+  ecr:
+    scanOnPush: false
+    images:
+      customImage:
+        path: "."
+        file: "Dockerfile"
+        platform: "linux/amd64"
+
+package:
+  individually: true
+  patterns:
+    - "./**"
+
+functions:
+  CustomImage:
+    image: customImage
+    role: customLambdaRole
+    events:
+      - http:
+          path: /
+          integration: lambda-proxy
+          method: ANY
+      - http:
+          path: /{proxy+}
+          integration: lambda-proxy
+          method: ANY
+
+resources:
+  Resources:
+    customLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: custom-lambda-role
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action:
+                - "sts:AssumeRole"
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+        Path: /
+        Policies:
+          - PolicyName: "upload-objects-s3-policy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - "s3:PutObject"
+                    - "s3:GetObject"
+                    - "s3:ListBucket"
+                  Resource:
+                    - arn:aws:s3:::spring-boot-lambda-jprugo
+                    - arn:aws:s3:::spring-boot-lambda-jprugo/*
